@@ -1,0 +1,2 @@
+# CRM_CLIENTSIDEAPI
+Dynamics CE 365 Client Side API
