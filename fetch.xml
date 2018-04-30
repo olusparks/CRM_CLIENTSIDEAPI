@@ -1,0 +1,31 @@
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
+  <entity name="opportunity">
+    <attribute name="statecode" />
+    <attribute name="customerid" />
+    <attribute name="actualvalue" />
+    <attribute name="actualclosedate" />
+    <attribute name="name" />
+    <attribute name="ownerid" />
+    <attribute name="opportunityid" />
+    <attribute name="createdon" />
+   
+
+    <order attribute="actualvalue" descending="true" />
+    <filter type="and">
+      <filter type="and">
+        <condition attribute="statecode" operator="eq" value="1" />
+        <condition attribute="actualclosedate" operator="this-fiscal-year" />
+      </filter>
+	  <filter type="and">
+		<condition attribute="actualclosedate" operator="on-or-after" value="@startdate" />
+		<condition attribute="actualclosedate" operator="on-or-before" value="@enddate" />
+	  </filter>
+    </filter>
+    <link-entity name="systemuser" from="systemuserid" to="createdby" alias="a_system">
+      <attribute name="businessunitid" />
+      <filter type="and">
+        <condition attribute="businessunitidname" operator="in"  value="@businessunit" />
+      </filter>
+    </link-entity>
+  </entity>
+</fetch>
