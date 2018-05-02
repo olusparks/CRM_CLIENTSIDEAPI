@@ -11,6 +11,8 @@ function CheckEstimatedCloseDate(context){
     var estimatedCloseDate = formContext.getAttribute("estimatedclosedate").getValue();
     var today = formContext.getAttribute("new_today").getValue();
 
+
+
     if(today > estimatedCloseDate){
         //set optionset value to Missed Commitment
         formContext.getAttribute("new_commitmentlevel").setValue(4);
@@ -64,11 +66,15 @@ function OnEstimatedClosedDateChange(){
     var estimatedCloseDate = Xrm.Page.getAttribute("estimatedclosedate").getValue();
     var today = Xrm.Page.getAttribute("new_today").getValue();
 
+    //Get only date
+    estimatedCloseDate.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+
     alert("Estimated Closed Date:" +estimatedCloseDate + "Today Date:" + today);    
 
     if(today > estimatedCloseDate){
         //set optionset value to Missed Commitment 
-        Xrm.Page.getAttribute("new_commitmentlevel").setValue(4);
+        Xrm.Page.getAttribute("purchaseprocess").setValue(3);
 
         alert("Commitment Level set");
 
