@@ -70,27 +70,27 @@ function OnEstimatedClosedDateChange(){
     estimatedCloseDate.setHours(0,0,0,0);
     today.setHours(0,0,0,0);
 
-    alert("Estimated Closed Date:" +estimatedCloseDate + "Today Date:" + today);    
+    console.log("Estimated Closed Date:" +estimatedCloseDate + "Today Date:" + today);    
 
     if(today > estimatedCloseDate){
         //set optionset value to Missed Commitment 
         Xrm.Page.getAttribute("purchaseprocess").setValue(3);
 
-        alert("Commitment Level set");
+        console.log("Commitment Level set");
 
         //Increment missed Commitment count
         let missedCount = 0;
         var missedCommitmentCount = Xrm.Page.getAttribute("new_missedcommitmentcount");
         var missedCommitmentCountValue = missedCommitmentCount.getValue();
 
-        alert("Missed Commitment count Value before Addition: " + missedCommitmentCountValue);
+        console.log("Missed Commitment count Value before Addition: " + missedCommitmentCountValue);
         if(missedCommitmentCountValue === null){
             missedCommitmentCountValue = 0;
         }
         missedCount = missedCommitmentCountValue + 1;
 
         missedCommitmentCount.setValue(missedCount);
-        alert("Missed Commitment count Value after Addition: " + missedCount)
+        console.log("Missed Commitment count Value after Addition: " + missedCount)
     }
 }
 
