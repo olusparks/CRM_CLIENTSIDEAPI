@@ -8,3 +8,32 @@ function OpenProcurementForm(){
 
 
 "https://sbsengg.crm4.dynamics.com/main.aspx?etn=rel_procurement&pagetype=entityrecord";
+
+function ChangeToSentForApproval(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+    if(status == 100000000 || status == 100000002){
+        alert(100000000);
+        Xrm.Page.getAttribute("statuscode").setValue(100000001); //Sent Approval
+        Xrm.Page.data.entity.save();
+    }
+}
+
+function ChangeToApproved(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+    if(status == 100000001){
+        alert(100000001);
+        Xrm.Page.getAttribute("statuscode").setValue(1); //Approved
+        Xrm.Page.data.entity.save();
+    }
+}
+
+function ChangeToRejected(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+    if(status == 100000001){
+        alert(100000001);
+        Xrm.Page.getAttribute("statuscode").setValue(100000002); //Rejected
+        Xrm.Page.data.entity.save();
+    }
+}
+
+//# sourceURL=dynamicScript.js

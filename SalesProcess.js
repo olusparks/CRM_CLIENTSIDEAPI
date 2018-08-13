@@ -75,8 +75,8 @@ function TypeofForm(executionContext){
 }
 
 //Make fields readonly\
-Xrm.Page.getAttribute("statuscode").addOnChange(MakeFieldsReadOnly);
-function MakeFieldsReadOnly(executionContext){
+//Xrm.Page.getAttribute("statuscode").addOnChange(MakeFieldsReadOnly);
+function MakeFieldsReadOnly(){
     //var formContext = executionContext.getFormContext();
     var status = Xrm.Page.getAttribute("statuscode").getValue();
     alert(status);
@@ -89,5 +89,35 @@ function MakeFieldsReadOnly(executionContext){
                 control.setDisabled(true);
             }
         }
+    }
+}
+
+//Change status to SentForApproval
+function ChangeToSentForApproval(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+    if(status == 100000001 || status == 100000000){
+        //alert(100000000);
+        Xrm.Page.getAttribute("statuscode").setValue(100000002); //Sent Approval
+        Xrm.Page.data.entity.save();
+    }
+}
+
+//Change status to Approved
+function ChangeToApproved(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+    if(status == 100000002){
+        //alert(100000002);
+        Xrm.Page.getAttribute("statuscode").setValue(1); //Approved
+        Xrm.Page.data.entity.save();
+    }
+}
+
+//Change status to Rejected
+function ChangeToRejected(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+    if(status == 100000002){
+        alert(100000002);
+        Xrm.Page.getAttribute("statuscode").setValue(100000000); //Rejected
+        Xrm.Page.data.entity.save();
     }
 }
