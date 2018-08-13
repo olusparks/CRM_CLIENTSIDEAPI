@@ -74,6 +74,7 @@ function assignResponse(req) {
     if (req.readyState == 4) {
         if (req.status == 200) {
             //save and refresh - settimeout for any delay for workflow to run
+            alert("Successfully executed workflow");
             Xrm.Page.data.save();
             Xrm.Page.data.refresh();
         }

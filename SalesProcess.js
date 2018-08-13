@@ -9,6 +9,7 @@ function OpenProcurementForm(){
     var accountid = Xrm.Page.getAttribute("customerid").getValue()[0].id;
     var accountName = Xrm.Page.getAttribute("customerid").getValue()[0].name;
     var entityType = Xrm.Page.getAttribute("customerid").getValue()[0].entityType;
+    var quoteName = Xrm.Page.getAttribute("name").getValue();
 
     var quoteId = Xrm.Page.data.entity.getId();
 
@@ -16,6 +17,7 @@ function OpenProcurementForm(){
     parameters["customer_idname"] = accountName;
     parameters["customer_idtype"] = entityType;
     parameters["quote_id"] = quoteId;
+    parameters["quoteName_1"] = quoteName;
 
     //Open Form
     Xrm.Utility.openEntityForm("new_procurement", null, parameters, windowOptions);
@@ -29,6 +31,7 @@ function LoadValueProcurementForm(){
     var accountName = param["customer_idname"];
     var acctentityType = param["customer_idtype"];
     var quoteid = param["quote_id"];
+    var name = param["quoteName_1"];
 
     //Populate the Account if there is one
     if(accountid != null || accountid != undefined){
@@ -50,8 +53,41 @@ function LoadValueProcurementForm(){
                 entityType: "quote"
             }]);    
     }
+
+    //Populate the name
+    if(name != null || name != undefined){
+        Xrm.Page.getAttribute("new_name").setValue(name);
+    }
 }
 
+//Refresh Ribbon
+Xrm.Page.getAttribute("statuscode").addOnChange(refreshRibbonOnchange);
+function refreshRibbonOnchange(){
+    Xrm.Page.ui.refreshRibbon();
+    alert("Refreshed");
+}
 
+//get FormType
+function TypeofForm(executionContext){
+    var formContext = executionContext.getFormContext();
+    var formType = formContext.ui.getFormType();
+    alert(formType);
+}
 
-
+//Make fields readonly\
+Xrm.Page.getAttribute("statuscode").addOnChange(MakeFieldsReadOnly);
+function MakeFieldsReadOnly(executionContext){
+    //var formContext = executionContext.getFormContext();
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+    alert(status);
+    if(status == 1){
+        //make fields readonly
+        var controls = Xrm.Page.ui.controls.get();
+        for(var i in controls){
+            var control = controls[i];
+            if(control.getDisabled && control.setDisabled && !control.getDisabled()){
+                control.setDisabled(true);
+            }
+        }
+    }
+}
