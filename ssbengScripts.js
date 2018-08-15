@@ -36,4 +36,51 @@ function ChangeToRejected(){
     }
 }
 
+
+//Button Transition
+function UnapprovedStatus(){
+    var formType = Xrm.Page.ui.getFormType();
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+
+    //Update FormType and Unapproved
+    if(formType == 2 && status == 100000001){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function SentForApprovalStatus(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+
+    if(status == 100000002){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function ApprovedStatus(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+
+    if(status == 1){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function RejectedStatus(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+
+    if(status == 100000000){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 //# sourceURL=dynamicScript.js
