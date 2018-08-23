@@ -1,0 +1,25 @@
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true">
+  <entity name="systemuser">
+    <attribute name="fullname" />
+    <attribute name="businessunitid" />
+    <attribute name="title" />
+    <attribute name="address1_telephone1" />
+    <attribute name="systemuserid" />
+    <order attribute="fullname" descending="false" />
+    <link-entity name="connection" from="record1id" to="systemuserid" link-type="inner" alias="ar">
+      <filter type="and">
+        <condition attribute="record1roleid" operator="eq" uiname="Sales Professional" uitype="connectionrole" value="{20079806-EB84-4093-99AD-BB46435DB028}" />
+      </filter>
+      <link-entity name="opportunity" from="opportunityid" to="record2id" link-type="inner" alias="as">
+        <filter type="and">
+          <condition attribute="opportunityid" operator="not-null" />
+        </filter>
+        <link-entity name="annotation" from="objectid" to="opportunityid" link-type="inner" alias="at">
+          <filter type="and">
+            <condition attribute="annotationid" operator="not-null" />
+          </filter>
+        </link-entity>
+      </link-entity>
+    </link-entity>
+  </entity>
+</fetch>

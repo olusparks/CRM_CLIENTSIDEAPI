@@ -170,15 +170,15 @@ function RejectedStatus(){
 }
 
 //Increment RejectionID
-Xrm.Pahe.getAttribute("statuscode").addOnChange(IncrementRejectionID);
-function IncrementRejectionID(executionContext){
-    var formContext = executionContext.getFormContext();
-
+///Xrm.Page.getAttribute("statuscode").addOnChange(IncrementRejectionID);
+function IncrementRejectionID(){
      let rejectionCount = 0;
-     var statusValue = formContext.getAttribute("statuscode").getValue;
+     var statusValue = Xrm.Page.getAttribute("statuscode").getValue();
+
+     //alert(statusValue);
 
      if(statusValue === 100000000){
-         var reject = formContext.getAttribute("new_rejectionid")
+         var reject = Xrm.Page.getAttribute("new_rejectionid")
          var rejectValue = reject.getValue();
 
          if(rejectValue == null || rejectValue == undefined){
@@ -188,5 +188,7 @@ function IncrementRejectionID(executionContext){
          
          //Set RejectionID
          reject.setValue(rejectionCount);
+
+         Xrm.Page.data.entity.save();
      }
 }

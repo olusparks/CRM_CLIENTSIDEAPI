@@ -34,6 +34,13 @@ function ChangeToRejected(){
         Xrm.Page.getAttribute("statuscode").setValue(100000002); //Rejected
         Xrm.Page.data.entity.save();
     }
+
+    alert("Status after saving: "+ status);
+    status = Xrm.Page.getAttribute("statuscode").getValue();
+    alert("Query status again: "+ status);
+
+    //Call IncrementRejection 
+     IncrementRejectionID(status);
 }
 
 
@@ -43,7 +50,7 @@ function UnapprovedStatus(){
     var status = Xrm.Page.getAttribute("statuscode").getValue();
 
     //Update FormType and Unapproved
-    if(formType == 2 && status == 100000001){
+    if(formType == 2 && status == 100000000){
         return true;
     }
     else{
@@ -54,7 +61,7 @@ function UnapprovedStatus(){
 function SentForApprovalStatus(){
     var status = Xrm.Page.getAttribute("statuscode").getValue();
 
-    if(status == 100000002){
+    if(status == 100000001){
         return true;
     }
     else{
@@ -76,11 +83,37 @@ function ApprovedStatus(){
 function RejectedStatus(){
     var status = Xrm.Page.getAttribute("statuscode").getValue();
 
-    if(status == 100000000){
+    if(status == 100000002){
         return true;
     }
     else{
         return false;
+    }
+}
+
+//Increment RejectionID
+function IncrementRejectionID(status){
+    let rejectionCount = 0;
+    var statusValue = Xrm.Page.getAttribute("statuscode").getValue();
+
+    alert("Status Value: "+statusValue);
+
+    if(statusValue == status){
+        var reject = Xrm.Page.getAttribute("new_rejectionid")
+        var rejectValue = reject.getValue();
+
+        alert("Reject Value: "+rejectValue);
+
+        if(rejectValue == null || rejectValue == undefined){
+            rejectValue = 0;
+        }
+        rejectionCount = rejectValue + 1;
+        
+        alert("Count: "+ rejectionCount);
+        //Set RejectionID
+        reject.setValue(rejectionCount);
+
+        Xrm.Page.data.entity.save();
     }
 }
 //# sourceURL=dynamicScript.js
