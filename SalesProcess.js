@@ -6,11 +6,22 @@ function OpenProcurementForm(){
     var parameters = {};
     
     //Get Values
+    //Account
     var accountid = Xrm.Page.getAttribute("customerid").getValue()[0].id;
     var accountName = Xrm.Page.getAttribute("customerid").getValue()[0].name;
     var entityType = Xrm.Page.getAttribute("customerid").getValue()[0].entityType;
-    var quoteName = Xrm.Page.getAttribute("name").getValue();
 
+    //Contact
+    var contactid = Xrm.Page.getAttribute("new_contactperson").getValue()[0].id;
+    var contactName = Xrm.Page.getAttribute("new_contactperson").getValue()[0].name;
+    var contactEntityType = Xrm.Page.getAttribute("new_contactperson").getValue()[0].entityType;
+
+    //Owner
+    var ownerid = Xrm.Page.getAttribute("ownerid").getValue()[0].id;
+    var ownerName = Xrm.Page.getAttribute("ownerid").getValue()[0].name;
+    var ownerEntityType = Xrm.Page.getAttribute("ownerid").getValue()[0].entityType;
+    
+    var quoteName = Xrm.Page.getAttribute("name").getValue();
     var quoteId = Xrm.Page.data.entity.getId();
 
     parameters["customer_id"] = accountid;
@@ -18,6 +29,12 @@ function OpenProcurementForm(){
     parameters["customer_idtype"] = entityType;
     parameters["quote_id"] = quoteId;
     parameters["quoteName_1"] = quoteName;
+    parameters["contact_id"] = contactid;
+    parameters["contactName_1"] = contactName;
+    parameters["contactName_type"] = contactEntityType;
+    parameters["owner_id"] = ownerid;
+    parameters["ownerName_1"] = ownerName;
+    parameters["ownerEntity_type"] = ownerEntityType;
 
     //Open Form
     Xrm.Utility.openEntityForm("new_procurement", null, parameters, windowOptions);
@@ -32,6 +49,12 @@ function LoadValueProcurementForm(){
     var acctentityType = param["customer_idtype"];
     var quoteid = param["quote_id"];
     var name = param["quoteName_1"];
+    var contactid = param["contact_id"];
+    var contactName = param["contactName_1"];
+    var cntEntityType = param["contactName_type"];
+    var ownerid = param["owner_id"];
+    var ownerName = param["ownerName_1"];
+    var ownerEntityType = param["ownerEntity_type"];
 
     //Populate the Account if there is one
     if(accountid != null || accountid != undefined){
@@ -50,13 +73,37 @@ function LoadValueProcurementForm(){
         Xrm.Page.getAttribute("new_quote").setValue(
             [{
                 id: quoteid,
+                name: name,
                 entityType: "quote"
-            }]);    
+            }]
+        );    
     }
 
     //Populate the name
     if(name != null || name != undefined){
         Xrm.Page.getAttribute("new_name").setValue(name);
+    }
+
+    //Populate the Contact
+    if(contactid != null || contactid != undefined){
+        Xrm.Page.getAttribute("new_contactperson").setValue(
+            [{
+               id: contactid,
+               name: contactName,
+               entityType: cntEntityType
+            }]
+        );
+    }
+
+    //Populate the Owner
+    if(ownerid != null || ownerid != undefined){
+        Xrm.Page.getAttribute("new_accountmanager").setValue(
+            [{
+               id: ownerid,
+               name: ownerName,
+               entityType: ownerEntityType
+            }]
+        );
     }
 }
 
@@ -191,4 +238,14 @@ function IncrementRejectionID(){
 
          Xrm.Page.data.entity.save();
      }
+}
+
+//Change status to Rejected
+function MakeCustomerNeedRequired(executionContext){
+    var formContext = executionContext.getFormContext();
+    var formType = formContext.ui.getFormType();
+    if(formType == 2){
+        formContext.getAttribute("customerneed").setRequiredLevel("required");
+        formContext.ui.controls.get("customerneed").setDisabled(false);
+    }
 }
