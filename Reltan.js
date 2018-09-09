@@ -53,33 +53,33 @@ function CalculateTotalAmount(executionContext){
 }
 
 
-function CheckDataInGrid(executionContext){
-    //var formContext = executionContext.getFormContext();
-    //var gridContext = formContext.getControl("Pursuit_Team");
-    var grid = Xrm.Page.getControl("Pursuit_Team");
-    var filteredRecordCount = grid.getGrid().getTotalRecordCount();
 
-    var internalStakeholderOnLoad = function(){
-        if(filteredRecordCount != null || filteredRecordCount != undefined){
-            if(filteredRecordCount > 0){
-                //Enable the Customer Need field
-                Xrm.Page.getAttribute("customerneed").setRequiredLevel("required");
-                Xrm.Page.ui.controls.get("customerneed").setDisabled(false);
-            }
-        }
-        else{
-            var alertStrings = { confirmButtonLabel: "OK", text: "Please add at least one internal stakeholder." };
-            var alertOptions = { height: 120, width: 260 };
-            Xrm.Navigation.openAlertDialog(alertStrings, alertOptions).then(
-                function (result){
-                    console.log("Alert dialog closed");
-                }, 
-                function (error){
-                    console.log(error.message);
-                });
-        }
+
+
+function CheckRows() {
+    var grid = Xrm.Page.getControl("Pursuit_Team");
+    if (grid == null || grid == undefined) { //make sure the grid has loaded 
+        setTimeout(function () { CheckRows(); }, 2000); //if the grid hasn’t loaded run this again when it has 
+        return;
     }
-    grid.addOnLoad(internalStakeholderOnLoad);
+    var filteredRecordCount = grid.getGrid().getTotalRecordCount();
+    if (filteredRecordCount > 0) {
+        Xrm.Page.getAttribute("customerneed").setRequiredLevel("required");
+        Xrm.Page.ui.controls.get("customerneed").setDisabled(false);
+    }
+    else
+    {
+        var alertStrings = { confirmButtonLabel: "OK", text: "Please add at least one internal stakeholder." };
+        var alertOptions = { height: 120, width: 260 };
+        Xrm.Navigation.openAlertDialog(alertStrings, alertOptions).then(
+            function (result){
+                console.log("Alert dialog closed");
+            }, 
+            function (error){
+                console.log(error.message);
+            }
+        );
+    }
 }
 
 //# sourceURL=dynamicScript.js
