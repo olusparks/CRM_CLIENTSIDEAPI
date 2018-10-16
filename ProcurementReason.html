@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Procurement Reason</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="ClientGlobalContext.js.aspx" type="text/javascript"></script>
+</head>
+<body>
+    <div class="container" style="margin-top:20px;">
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <strong><label for="reason">Reason</label></strong>
+                <textarea rows="10" name="" id="txtReason" class="form-control" required="required" placeholder="Give reason for Revision or Rejection"></textarea>
+                
+            </div>
+            <div class="col-sm-12 form-group">
+                <input type="submit" value="Send" class="btn btn-primary" onclick="dryRun()"  style="float:right">
+            </div>
+        </div>
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    document.onreadystatechange = function (){
+            if(document.readyState == "complete"){
+                //dryRun();
+            }
+        }
+    
+    function dryRun(){
+        //Get the any query string parameters and load them into the vals array  
+        var vals = new Array();  
+        if (location.search != "") {  
+            vals = location.search.substr(1).split("&"); 
+
+            console.log("URL after & split: "+ vals);
+            var reason = document.getElementById("txtReason");
+            var Xrm = parent.Xrm || window.parent.Xrm;
+            if(Xrm == null || Xrm == undefined){
+                console.log("Xrm is null:value =="+ Xrm);
+            }
+
+            for (var i in vals) {  
+                vals[i] = vals[i].replace(/\+/g, " ").split("=");  
+                console.log("URL after = split: "+ vals[i]); 
+            }  
+             //look for the parameter named 'data'  
+            var found = false;  
+            for (var i in vals) {  
+                if (vals[i][0].toLowerCase() == "data") { 
+                    console.log("URL after data split: "+ vals[i][1].replace("%7b", "").replace("%7d", "")); 
+                    parseDataValue(vals[i][1].replace("%7b", "").replace("%7d", ""));  
+                    found = true;  
+                    break;  
+                }
+            }  
+        }
+    }
+
+    function parseDataValue(datavalue){
+        if (datavalue != "") {  
+            //var vals = new Array();
+            
+            //Decode URI
+            // vals = decodeURIComponent(datavalue).split("&");  
+            // for (var i in vals) {  
+            //     vals[i] = vals[i].replace(/\+/g, " ").split("="); 
+            //     console.log("URL after data split: "+ vals[i][1]); 
+            // }
+            //console.log("URL after data split: "+ vals[i][1]);
+            var entity = { "EntityId": datavalue };
+            console.log("URL after data split: "+ entity);
+            var WorkflowId = "B74C38EC-F857-468A-84C4-EF0AC2757FCA";
+        
+            var req = new XMLHttpRequest();
+            req.open("POST", "https://reliancesandbox.crm4.dynamics.com" + "/api/data/v9.0/workflows(" + WorkflowId + ")/Microsoft.Dynamics.CRM.ExecuteWorkflow", true);
+            req.setRequestHeader("OData-MaxVersion", "4.0");
+            req.setRequestHeader("OData-Version", "4.0");
+            req.setRequestHeader("Accept", "application/json");
+            req.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+            req.onreadystatechange = function() {
+                if (this.readyState === 4) {
+                    req.onreadystatechange = null;
+            
+                    if (this.status == 200) {
+                        AlertMsg("Success");
+                    } else {
+                        AlertMsg("Error");
+                    }
+                }
+            };
+            req.send(JSON.stringify(entity));
+        } 
+    }
+
+    function AlertMsg(message){
+        var alertStrings = { confirmButtonLabel: "OK", text: message };
+        var alertOptions = { height: 200, width: 260 };
+        Xrm.Navigation.openAlertDialog(alertStrings, alertOptions).then(
+            function success(result) {
+                console.log("Alert dialog closed");
+            },
+            function (error) {
+                console.log(error.message);
+            }
+        );
+    }
+</script>
+</body>
+</html>

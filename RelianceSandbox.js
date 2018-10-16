@@ -305,6 +305,39 @@ function ChangeToRejected(){
     IncrementRejectionID();
 }
 
+formContext.getAttribute("statuscode").addOnChange(RejectedFuncs);
+function RejectedFuncs(executionContext){
+    
+    var formContext = executionContext.getFormContext();
+    var status = formContext.getAttribute("statuscode").getValue();
+
+    //Lock Fields
+    if(status == 1 || status == 100000003){
+        //make fields readonly
+        var controls = Xrm.Page.ui.controls.get();
+        for(var i in controls){
+            var control = controls[i];
+            if(control.getDisabled && control.setDisabled && !control.getDisabled()){
+                control.setDisabled(true);
+            }
+        }
+    }
+
+    //Increment Rejection Field
+    if(statusValue == 100000003){
+        var reject = formContext.getAttribute("new_rejectionid")
+        var rejectValue = reject.getValue();
+
+        if(rejectValue == null || rejectValue == undefined){
+            rejectValue = 0;
+        }
+        rejectionCount = rejectValue + 1;
+        
+        //Set RejectionID
+        reject.setValue(rejectionCount);
+        Xrm.Page.data.entity.save();
+    }
+}
 
 //End of Procurement Status Transition
 
@@ -491,49 +524,50 @@ function UpdateExchangeRt(){
         function success(result){
             if(result != null || result != undefined){
                 lineAmtEx.setValue(result.new_exchangerate);
+                Xrm.Page.data.entity.save();
             }
         }
     )
 }
 
 //Calculate TotalAmount with Exchange Rate and Quantity
-function CalculateTotalAmount(executionContext){
-    var formContext = executionContext.getFormContext();
-    var priceperunit = formContext.getAttribute("priceperunit").getValue();
-    var quantity = formContext.getAttribute("quantity").getValue();
-    if(priceperunit != null || priceperunit != undefined){
-        //Get exchangerate
-        var exRate = formContext.getAttribute("new_exchangerate").getValue();
-        if(exRate != null || exRate != undefined){
-            //Multiply exchange rate with priceperunit
-            var amount = priceperunit * exRate;
-            if(quantity != null || quantity != undefined){
-                //Multiply amount by quantity
-                var totalAmount = amount * quantity;
-                //Set Total_With_ExchangeRate
-                formContext.getAttribute("new_totalextendedamount").setValue(totalAmount);
-            }
-        }
-    }
-}
+// function CalculateTotalAmount(executionContext){
+//     var formContext = executionContext.getFormContext();
+//     var priceperunit = formContext.getAttribute("priceperunit").getValue();
+//     var quantity = formContext.getAttribute("quantity").getValue();
+//     if(priceperunit != null || priceperunit != undefined){
+//         //Get exchangerate
+//         var exRate = formContext.getAttribute("new_exchangerate").getValue();
+//         if(exRate != null || exRate != undefined){
+//             //Multiply exchange rate with priceperunit
+//             var amount = priceperunit * exRate;
+//             if(quantity != null || quantity != undefined){
+//                 //Multiply amount by quantity
+//                 var totalAmount = amount * quantity;
+//                 //Set Total_With_ExchangeRate
+//                 formContext.getAttribute("new_totalextendedamount").setValue(totalAmount);
+//             }
+//         }
+//     }
+// }
 
-function entityLineAmount(){
-    setTimeout(function() {
-        var gridCtx = Xrm.Page.getControl("opportunityproductsGrid");
-        if(gridCtx != null || gridCtx != undefined){
-            Xrm.Page.getControl("opportunityproductsGrid").addOnLoad(gridLineAmount);
-        }
-    }, 3000);
+// function entityLineAmount(){
+//     setTimeout(function() {
+//         var gridCtx = Xrm.Page.getControl("opportunityproductsGrid");
+//         if(gridCtx != null || gridCtx != undefined){
+//             Xrm.Page.getControl("opportunityproductsGrid").addOnLoad(gridLineAmount);
+//         }
+//     }, 3000);
     
-}
+// }
 
-function gridLineAmount(){
-    var lineAmount = 0.00;
-    var totalAmount = 0.00;
-    var quantity = 0;
-    var priceperunit = 0.00;
-    var exRate = 0.00;
-    var totalExtendedAmount = 0.00;
+// function gridLineAmount(){
+//     var lineAmount = 0.00;
+//     var totalAmount = 0.00;
+//     var quantity = 0;
+//     var priceperunit = 0.00;
+//     var exRate = 0.00;
+//     var totalExtendedAmount = 0.00;
 
     // setTimeout(function(){
     //     var filteredRecordCount = Xrm.Page.getControl("opportunityproductsGrid").getGrid().getTotalRecordCount();
@@ -552,53 +586,189 @@ function gridLineAmount(){
     // }, 3000);
 
 
-    var filteredRecordCount = Xrm.Page.getControl("opportunityproductsGrid").getGrid().getTotalRecordCount();
-    if(filteredRecordCount > 0){
-            //Xrm.Page.ui.setFormNotification("There are "+filteredRecordCount.toString()+ "records", "INFO", "opprecordcount");
-            var allRows = Xrm.Page.getControl("opportunityproductsGrid").getGrid().getRows();
+//     var filteredRecordCount = Xrm.Page.getControl("opportunityproductsGrid").getGrid().getTotalRecordCount();
+//     if(filteredRecordCount > 0){
+//             //Xrm.Page.ui.setFormNotification("There are "+filteredRecordCount.toString()+ "records", "INFO", "opprecordcount");
+//             var allRows = Xrm.Page.getControl("opportunityproductsGrid").getGrid().getRows();
     
-            for(var i = 0; i < filteredRecordCount; i++){
-                var attributes = allRows.get(i).getData().getEntity().getAttributes();
+//             for(var i = 0; i < filteredRecordCount; i++){
+//                 var attributes = allRows.get(i).getData().getEntity().getAttributes();
 
-                quantity = formatNumber(attributes.get("quantity").getValue());
-                priceperunit = formatNumber(attributes.get("priceperunit").getValue());
-                exRate = formatNumber(attributes.get("new_exchangerate").getValue());
+//                 quantity = formatNumber(attributes.get("quantity").getValue());
+//                 priceperunit = formatNumber(attributes.get("priceperunit").getValue());
+//                 exRate = formatNumber(attributes.get("new_exchangerate").getValue());
                 
-                totalExtendedAmount = priceperunit * exRate * quantity;
-                attributes.get("new_totalextendedamount").setValue(totalExtendedAmount);
+//                 totalExtendedAmount = priceperunit * exRate * quantity;
+//                 attributes.get("new_totalextendedamount").setValue(totalExtendedAmount);
 
-                lineAmount = formatNumber(attributes.get("new_totalextendedamount").getValue());
-                totalAmount = totalAmount + lineAmount;
+//                 lineAmount = formatNumber(attributes.get("new_totalextendedamount").getValue());
+//                 totalAmount = totalAmount + lineAmount;
+//             }
+//             Xrm.Page.getAttribute("new_totalamount_ex").setValue(totalAmount);
+//             //Xrm.Page.ui.clearFormNotification("opprecordcount");
+//         }
+//     else{
+//         setTimeout(gridLineAmount, 3000);
+//     }
+// }
+
+// function formatNumber(value){
+//     return parseInt(value.substring(1, value.length).replace(/,/g, ""));
+// }
+
+
+// function checkNAN(executionContext){
+//     var formContext = executionContext.getFormContext();
+//     var totalAmt = formContext.getAttribute("new_totalamount_ex");
+//     if(totalAmt.getValue() == NaN){
+//         var valuee = 0.00;
+//         totalAmt.setValue(valuee)
+//     }
+// }
+
+// function filterVendorAccounts(){
+//      //Only show accounts with the type 'Preferred Customer'
+//      var vendorAccountFilter = "<filter type='and'><condition attribute='customertypecode' operator='eq' value='11'/></filter>";
+//      Xrm.Page.getControl("new_vendoraccount").addCustomFilter(vendorAccountFilter, "account");
+// }
+
+// function addVendorAccounts(){
+//     Xrm.Page.getControl("new_vendoraccount").addPreSearch(filterVendorAccounts);
+// }
+
+
+// function PopulateProcurementLineVendor(){
+
+// }
+
+function GetRecordGuid(){
+    var guidValue = Xrm.Page.data.entity.getId();
+    guidValue =  guidValue.replace("{", "").replace("}", "");
+    alert(guidValue);
+}
+
+function GetLoggedInUserSecurityRoleNames(){
+    //Get Logged-in user context
+    var userSettings = Xrm.Utility.getGlobalContext().userSettings;
+    //Get Logged in user security roles
+    var loggedInUserSecurityRolesGuidArray = userSettings.securityRoles;
+    var userRoleId = userSettings.userId.replace("{","").replace("}","");
+    //var  url = Xrm.Page.context.getClientUrl();
+
+    var totalSecurityRolesArray = new Array();
+    var rolesOutputText = "";
+    var query = "?$select=name,roleid";
+
+    //Retrieve all Roles
+    Xrm.WebApi.retrieveMultipleRecords("role", "?$select=name,roleid").then(
+        function success(result){
+            if(result.entities.length > 0){
+                //Push Role Names and Role Ids to Array
+                for(var rolesCount = 0; rolesCount < result.entities.length; rolesCount++){
+                    totalSecurityRolesArray.push({RoleName: result.entities[roleCount].name, RoleId: result.entities[roleCount].roleid});
             }
-            Xrm.Page.getAttribute("new_totalamount_ex").setValue(totalAmount);
-            //Xrm.Page.ui.clearFormNotification("opprecordcount");
         }
-    else{
-        setTimeout(gridLineAmount, 3000);
+    });
+
+    //Compare User Roles with All-Retrieved-Roles
+    for(var scRolesCount = 0; scRolesCount < loggedInUserSecurityRolesGuidArray.length; scRolesCount++){
+        for(var tscRolesCount =0; tscRolesCount < totalSecurityRolesArray.length; tscRolesCount++){
+            if(totalSecurityRolesArray[tscRolesCount].RoleId.toLowerCase() == loggedInUserSecurityRolesGuidArray[scRolesCount]){
+                rolesOutputText += totalSecurityRolesArray[tscRolesCount].RoleName + "\n";
+            }
+        }
     }
+
+    //Alert Roles Name of user
+    var alertStrings = { confirmButtonLabel: "OK", text: rolesOutputText };
+    var alertOptions = { height: 200, width: 260 };
+    Xrm.Navigation.openAlertDialog(alertStrings, alertOptions).then(
+        function success(result) {
+            console.log("Alert dialog closed");
+        },
+        function (error) {
+            console.log(error.message);
+        }
+    );
 }
 
-function formatNumber(value){
-    return parseInt(value.substring(1, value.length).replace(/,/g, ""));
+
+    // var req = new XMLHttpRequest();
+    // var fullURL = url + "/api/data/v9.0/roles?$select=name&$filter=roleid eq " + userRoleId;
+    //     req.open("GET", fullURL, true);
+    //     req.setRequestHeader("OData-MaxVersion", "4.0");
+    //     req.setRequestHeader("OData-Version", "4.0");
+    //     req.setRequestHeader("Accept", "application/json");
+    //     req.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    //     if(req.readyState == 4 && req.status == 200){
+    //         var results = JSON.parse(req.response);
+    //         alert(results);
+    //         for (let i = 0; i < results.value.length; i++) {
+    //             var name = results.value[i]["name"];
+    //             alert(name);
+    //         }
+    //     }
+    //     req.send();
+    // }
+    // if(loggedInUserSecurityRolesGuidArray.length > 0){
+    //     Xrm.WebApi.retrieveMultipleRecords("roles", "?$select=name,roleid")
+    //     .then(function success(result){
+    //         if(result.entities.length > 0){
+    //             //Push Role Names and Role Ids to Array
+    //             for(var rolesCount = 0; rolesCount < result.entities.length; rolesCount++){
+    //                 totalSecurityRolesArray.push({RoleName: result.entities[roleCount].name, RoleId: result.entities[roleCount].roleid});
+    //             }
+
+    //             rolesOutputText = userSettings.userName + "has the below Security Roles \n---------------\n";
+
+    //             // //Compare the user security  roles with Total Security Roles
+    //             // for(var userSecurityRolesCounter = 0; userSecurityRolesCounter < loggedInUsersecurityRolesGuidArray.length; userSecurityRolesCounter++){
+    //             //     for(var totalsecurityRolesCounter = 0;  totalsecurityRolesCounter < totalSecurityRolesArray.length; totalsecurityRolesCounter++){
+    //             //         if(totalSecurityRolesArray[totalsecurityRolesCounter].RoleId.toLowerCase() == loggedInUsersecurityRolesGuidArray[userSecurityRolesCounter].toLowerCase()){
+    //             //             rolesOutputText += totalSecurityRolesArray[totalsecurityRolesCounter].RoleName + "\n";
+    //             //             break;
+    //             //         }
+    //             //     }
+    //             // }
+    //         }
+    //          // Show User Roles
+    //          alert(rolesOutputText);
+    //         Xrm.Utility.alertDialog(rolesOutputText, null);
+    //     },
+    //     function (error) {
+    //         // Show error
+    //         Xrm.Utility.alertDialog(error.message, null);
+    //         }
+    //     );
+    // }
+
+function OpenProcurementReason(typename, objectId, formId, workflowId){
+    var data = { entity: typename, recordId: objectId, formId: formId, workflowId: workflowId}
+    var windowOptions = { height: 550, width: 400 }
+    Xrm.Navigation.openWebResource("new_ProcurementReasonForm", windowOptions, data);
 }
 
-
-function checkNAN(executionContext){
-    var formContext = executionContext.getFormContext();
-    var totalAmt = formContext.getAttribute("new_totalamount_ex");
-    if(totalAmt.getValue() == NaN){
-        var valuee = 0.00;
-        totalAmt.setValue(valuee)
-    }
+function OpenProcurementReason(objectId){
+    var data = objectId;
+    var windowOptions = { height: 450, width: 400 }
+    Xrm.Navigation.openWebResource("new_ProcurementReasonForm", windowOptions, data);
 }
 
-function filterVendorAccounts(){
-     //Only show accounts with the type 'Preferred Customer'
-     var vendorAccountFilter = "<filter type='and'><condition attribute='customertypecode' operator='eq' value='11'/></filter>";
-     Xrm.Page.getControl("new_vendoraccount").addCustomFilter(vendorAccountFilter, "account");
+function OpenDialog(dialogId, entityName){
+    //Xrm.Page.ui.setFormNotification("This procurement has been rejected", "WARNING", "rejectedprocurement");
+    var objectId = Xrm.Page.data.entity.getId()
+    var url = Xrm.Page.context.getClientUrl() +
+     "/cs/dialog/rundialog.aspx?DialogId=" + dialogId +
+      "&EntityName=" + entityName + 
+      "&ObjectId=" + objectId;
+      var windowOptions = { height: 550, width: 500 }
+      Xrm.Navigation.openUrl(url, windowOptions)
 }
 
-function addVendorAccounts(){
-    Xrm.Page.getControl("new_vendoraccount").addPreSearch(filterVendorAccounts);
+function GetRecordIdforProcurement(){
+    var guidValue = Xrm.Page.data.entity.getId();
+    guidValue =  guidValue.replace("{", "").replace("}", "");
+    Xrm.Page.getAttribute("new_recordid").setValue(guidValue);
 }
+
 //# sourceURL=dynamicScript.js

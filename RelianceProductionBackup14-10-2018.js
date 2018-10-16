@@ -258,8 +258,6 @@ function MakeFieldsReadOnly(){
     }
 }
 
-//Procurement Status Transition
-
 //Change status to SentForApproval
 function ChangeToSentForApproval(){
     var status = Xrm.Page.getAttribute("statuscode").getValue();
@@ -277,34 +275,61 @@ function ChangeToApproved(){
         //alert(100000002);
         Xrm.Page.getAttribute("statuscode").setValue(1); //Approved
         Xrm.Page.data.entity.save();
-
-        //Call Function
-        MakeFieldsReadOnly();
-    }
-}
-
-//Change status to Revised
-function ChangeToRevised(){
-    var status = Xrm.Page.getAttribute("statuscode").getValue();
-    //Sent For Approval
-    if(status == 100000002){    
-        Xrm.Page.getAttribute("statuscode").setValue(100000000); //Revised
-        Xrm.Page.data.entity.save();
     }
 }
 
 //Change status to Rejected
 function ChangeToRejected(){
     var status = Xrm.Page.getAttribute("statuscode").getValue();
-    if(status == 100000002 || status == 100000000){
-        Xrm.Page.getAttribute("statuscode").setValue(100000003); //Rejected
+    if(status == 100000002){
+        //alert(100000002);
+        Xrm.Page.getAttribute("statuscode").setValue(100000000); //Rejected
         Xrm.Page.data.entity.save();
     }
-    //Xrm.Page.ui.setFormNotification("This procurement has been rejected", "WARNING", "rejectedprocurement");
+}
 
-    //Call Function
-    MakeFieldsReadOnly();
-    IncrementRejectionID();
+//Button Transition
+function UnapprovedStatus(){
+    var formType = Xrm.Page.ui.getFormType();
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+
+    //Update FormType and Unapproved
+    if(formType == 2 && status == 100000001){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function SentForApprovalStatus(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+    if(status == 100000002){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function ApprovedStatus(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+    if(status == 1){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function RejectedStatus(){
+    var status = Xrm.Page.getAttribute("statuscode").getValue();
+    if(status == 100000000){
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 //Increment RejectionID
@@ -408,25 +433,5 @@ function onGridLoad(){
             Xrm.Utility.alertDialog(functionName + "Error: " + (e.message || e.description));
         }
     
-}
-
-function OpenDialog(dialogId, entityName){
-    var objectId = Xrm.Page.data.entity.getId()
-    var url = Xrm.Page.context.getClientUrl() +
-     "/cs/dialog/rundialog.aspx?DialogId=" + dialogId +
-      "&EntityName=" + entityName + 
-      "&ObjectId=" + objectId;
-      var windowOptions = { height: 550, width: 500 }
-      Xrm.Navigation.openUrl(url, windowOptions)
-}
-
-function gridRowSelected(context) {
-    context.getFormContext().getData().getEntity().attributes.forEach(function (attr) {
-        if (attr.getName() === "new_priceperunit") {
-            attr.controls.forEach(function (c) {
-                c.setDisabled(true);
-            })
-        }
-    });
 }
 //# sourceURL=dynamicScript.js
