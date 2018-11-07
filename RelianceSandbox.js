@@ -259,6 +259,7 @@ function MakeFieldsReadOnly(){
 }
 
 //Procurement Status Transition
+
 //Change status to SentForApproval
 function ChangeToSentForApproval(){
     var status = Xrm.Page.getAttribute("statuscode").getValue();
@@ -285,7 +286,8 @@ function ChangeToApproved(){
 //Change status to Revised
 function ChangeToRevised(){
     var status = Xrm.Page.getAttribute("statuscode").getValue();
-    if(status == 100000002){
+    //Sent For Approval
+    if(status == 100000002){    
         Xrm.Page.getAttribute("statuscode").setValue(100000000); //Revised
         Xrm.Page.data.entity.save();
     }
@@ -755,7 +757,6 @@ function OpenProcurementReason(objectId){
 }
 
 function OpenDialog(dialogId, entityName){
-    //Xrm.Page.ui.setFormNotification("This procurement has been rejected", "WARNING", "rejectedprocurement");
     var objectId = Xrm.Page.data.entity.getId()
     var url = Xrm.Page.context.getClientUrl() +
      "/cs/dialog/rundialog.aspx?DialogId=" + dialogId +
@@ -771,4 +772,101 @@ function GetRecordIdforProcurement(){
     Xrm.Page.getAttribute("new_recordid").setValue(guidValue);
 }
 
+
+function CallPushProducts(datavalue){
+    if (datavalue != "") {  
+        var entity = { "EntityId": datavalue };
+        console.log("URL after data split: "+ entity);
+        var WorkflowId = "5828850C-4351-405B-91FB-64C129BBC056";
+    
+        var req = new XMLHttpRequest();
+        req.open("POST", "https://reliancesandbox.crm4.dynamics.com" + "/api/data/v9.0/workflows(" + WorkflowId + ")/Microsoft.Dynamics.CRM.ExecuteWorkflow", true);
+        req.setRequestHeader("OData-MaxVersion", "4.0");
+        req.setRequestHeader("OData-Version", "4.0");
+        req.setRequestHeader("Accept", "application/json");
+        req.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        req.onreadystatechange = function() {
+            if (this.readyState === 4) {
+                req.onreadystatechange = null;
+        
+                if (this.status == 200) {
+                    AlertMsg("Success");
+                } else {
+                    AlertMsg("Error")   
+                }
+            }
+        };
+        req.send(JSON.stringify(entity));
+    } 
+}
+
+function AlertMsg(message){
+    var alertStrings = { confirmButtonLabel: "OK", text: message };
+    var alertOptions = { height: 200, width: 260 };
+    Xrm.Navigation.openAlertDialog(alertStrings, alertOptions).then(
+        function success(result) {
+            console.log("Alert dialog closed");
+        },
+        function (error) {
+            console.log(error.message);
+        }
+    );
+}
+
+function GetSelectedMeansOfApproval(executionContext, source, target){
+    var formContext = executionContext.getFormContext();
+    var sourceField = formContext.getAttribute(source);
+    var targetField = formContext.getAttribute(target);
+
+    if(sourceField.getValue() != null){
+
+        var sourceValue = sourceField.getValue();
+        var deptText = sourceField.getText();
+        var sourceLength = sourceValue.length;
+        //alert("Length: "+ sourceLength)
+
+        var result = "";
+        var selectedOptions = [];
+        for(var i=0; i < sourceLength; i++){
+            selectedOptions.push(sourceValue[i]);
+        }
+        selectedOptions.sort();
+
+        for(var j=0; j < selectedOptions.length; j++){
+            result += selectedOptions[j];
+        }
+
+        if(targetField.getValue() != null){
+            targetField.setValue(null);
+        }
+        targetField.setValue(result);  
+    }
+    else{
+        if(targetField.getValue() != null){
+            targetField.setValue(null);
+        }
+    }
+}
+
+function PaymentValueVisibility(executionContext, source){
+    var formContext = executionContext.getFormContext();
+    var sourceField = formContext.getAttribute(source);
+    
+    if(sourceField.getValue() != null){
+        var sourceText = sourceField.getText();
+
+        if(sourceText.includes("Payment")){
+            //Make Payment Value Visible
+            Xrm.Page.getControl("new_paymentvalue").setVisible(true)
+        }
+        else{
+            //Make Payment Value invisible
+            Xrm.Page.getControl("new_paymentvalue").setVisible(false)
+        }
+    }
+    else{
+         //Make Payment Value invisible
+         Xrm.Page.getControl("new_paymentvalue").setVisible(false)
+    }
+}
 //# sourceURL=dynamicScript.js

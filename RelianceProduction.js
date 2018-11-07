@@ -429,4 +429,78 @@ function gridRowSelected(context) {
         }
     });
 }
+
+formContext.getAttribute("statuscode").addOnChange(LockFieldsOnReject);
+function LockFieldsOnReject(executionContext){
+    var formContext = executionContext.getFormContext();
+    var status = formContext.getAttribute("statuscode").getValue();
+    console.log(status);
+    if(status == 100000003){
+        //make fields readonly
+        var controls = Xrm.Page.ui.controls.get();
+        for(var i in controls){
+            var control = controls[i];
+            if(control.getDisabled && control.setDisabled && !control.getDisabled()){
+                control.setDisabled(true);
+            }
+        }
+    }
+}
+
+function GetSelectedMultiOptionSetValue(executionContext, source, target){
+    var formContext = executionContext.getFormContext();
+    var sourceField = formContext.getAttribute(source);
+    var targetField = formContext.getAttribute(target);
+
+    if(sourceField.getValue() != null){
+
+        var sourceValue = sourceField.getValue();
+        var deptText = sourceField.getText();
+        var sourceLength = sourceValue.length;
+        //alert("Length: "+ sourceLength)
+
+        var result = "";
+        var selectedOptions = [];
+        for(var i=0; i < sourceLength; i++){
+            selectedOptions.push(sourceValue[i]);
+        }
+        selectedOptions.sort();
+
+        for(var j=0; j < selectedOptions.length; j++){
+            result += selectedOptions[j];
+        }
+
+        if(targetField.getValue() != null){
+            targetField.setValue(null);
+        }
+        targetField.setValue(result);  
+    }
+    else{
+        if(targetField.getValue() != null){
+            targetField.setValue(null);
+        }
+    }
+}
+
+function PaymentValueVisibility(executionContext, source){
+    var formContext = executionContext.getFormContext();
+    var sourceField = formContext.getAttribute(source);
+    
+    if(sourceField.getValue() != null){
+        var sourceText = sourceField.getText();
+
+        if(sourceText.includes("Payment")){
+            //Make Payment Value Visible
+            Xrm.Page.getControl("new_paymentvalue").setVisible(true)
+        }
+        else{
+            //Make Payment Value invisible
+            Xrm.Page.getControl("new_paymentvalue").setVisible(false)
+        }
+    }
+    else{
+         //Make Payment Value invisible
+         Xrm.Page.getControl("new_paymentvalue").setVisible(false)
+    }
+}
 //# sourceURL=dynamicScript.js
