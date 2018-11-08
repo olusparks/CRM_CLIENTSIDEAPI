@@ -869,4 +869,21 @@ function PaymentValueVisibility(executionContext, source){
          Xrm.Page.getControl("new_paymentvalue").setVisible(false)
     }
 }
+
+function UpdateQuoteLine(executionContext, entity, source, query){
+    //Get source id value
+    var formContext = executionContext.getFormContext();
+    var sourceField = formContext.getAttribute(source).getValue()[0].id;
+    var sourceId = sourceField.replace("{", "").replace("}", "");
+    var queryField = query;
+
+    Xrm.WebApi.retrieveRecord(entity, sourceId, queryField).then(
+        function success(result){
+            console.log("Retrieved Value: Revenue Type ${result.new_revenuetype}, Revenue Cycle ${result.new_revenuecycle}");
+        },
+        function(error){
+            console.log(error.message);
+        }
+    );
+}
 //# sourceURL=dynamicScript.js
